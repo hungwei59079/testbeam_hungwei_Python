@@ -5,6 +5,7 @@
 void hexaplot_helper(const std::vector<double>& values = {}, 
                      bool skip_irrelevant_channels = true)
 {
+    gROOT->SetBatch(kTRUE);
     TString project_dir = "~/CMSSW_16_0_0_pre1/src/HGCalCommissioning/DQM/extern/";
     TString fname = project_dir + "output/geometry/geometry_ML_F_wafer.root";
     TString figure = "./test.png";
@@ -67,8 +68,8 @@ void hexaplot_helper(const std::vector<double>& values = {},
     }
     std::cout<<"Ncells"<<p->GetNcells()<<std::endl;
     // create a plot
-    p->Draw("colz;text");
     gStyle->SetPaintTextFormat(".0f");
+    p->Draw("colz;text");
     c1->SaveAs(figure);
     f->Close();
 }
