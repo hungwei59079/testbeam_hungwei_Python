@@ -1,38 +1,35 @@
 import argparse
-import ROOT
+import uproot
 
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", help="file_to_inspect")
-parser.add_argument("event_number", help="event_number_to_inspect")
-
+parser.add_argument("event_number", type=int, help="event_number_to_inspect")
 args = parser.parse_args()
-f1 = ROOT.TFile.Open(args.filename)
-tree = f1.Get("Events")
-# --- Enable only selected branches ---
-tree.SetBranchStatus("*", 0)
-tree.SetBranchStatus("HGCHit_layer", 1)
-tree.SetBranchStatus("HGCHit_energy", 1)
-tree.SetBranchStatus("HGCMetaData_trigTime", 1)
 
-# --- Create containers to read into ---
-# In PyROOT, you use ROOT.std.vector or array.array instead of raw C arrays
-layer = ROOT.std.vector("int")()
-energy = ROOT.std.vector("float")()
-trigtime = ROOT.std.vector("unsigned int")()
+# --- Open the ROOT file and tree ---
+with uproot.open(args.filename) as file:
+    if "Events" not in file:
+        raise RuntimeError("Could not find TTree 'Events' in the file.")
+    tree = file["Events"]
 
-# --- Set branch addresses ---
-tree.SetBranchAddress("HGCHit_layer", layer)
-tree.SetBranchAddress("HGCHit_energy", energy)
-tree.SetBranchAddress("HGCMetaData_trigTime", trigtime)
+    entry = int(args.event_number)
+    if entry < 0 or entry >= tree.num_entries:
+        raise IndexError(f"Event number {entry} out of range (max = {tree.num_entries - 1})")
 
-# --- Get the desired event ---
-entry = args.event_number
-if entry < 0 or entry >= tree.GetEntries():
-    raise IndexError(f"Event number {entry} out of range (max = {tree.GetEntries()-1})")
+    # --- Read only the branches you need, for a single entry ---
+    arrays = tree.arrays(
+        ["HGCHit_layer", "HGCHit_energy", "HGCMetaData_trigTime"],
+        entry_start=entry,
+        entry_stop=entry + 1
+    )
 
-tree.GetEntry(entry)
+# --- Extract the data ---
+layers = arrays["HGCHit_layer"][0]
+energies = arrays["HGCHit_energy"][0]
+trigtime = arrays["HGCMetaData_trigTime"][0]
 
 # --- Print info ---
 print(f"Trigger time: {trigtime}")
-print("Layers:", list(layer))
-print("Energies:", list(energy))
+print("Layers:", layers)
+print("Energies:", energies)
+
