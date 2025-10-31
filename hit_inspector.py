@@ -1,13 +1,38 @@
+import argparse
 import ROOT
-import os
 
-search_base = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/"
+parser = argparse.ArgumentParser()
+parser.add_argument("filename", help="file_to_inspect")
+parser.add_argument("event_number", help="event_number_to_inspect")
 
-found_file_path = []
-for dirpath, _, filenames in os.walk(search_base):
-    for filename in filenames:
-        if "NANO" in filename:
-            found_file_path.append(dirpath + filename)
+args = parser.parse_args()
+f1 = ROOT.TFile.Open(args.filename)
+tree = f1.Get("Events")
+# --- Enable only selected branches ---
+tree.SetBranchStatus("*", 0)
+tree.SetBranchStatus("HGCHit_layer", 1)
+tree.SetBranchStatus("HGCHit_energy", 1)
+tree.SetBranchStatus("HGCMetaData_trigTime", 1)
 
-for files in found_file_path:
-    print(files)
+# --- Create containers to read into ---
+# In PyROOT, you use ROOT.std.vector or array.array instead of raw C arrays
+layer = ROOT.std.vector("int")()
+energy = ROOT.std.vector("float")()
+trigtime = ROOT.std.vector("unsigned int")()
+
+# --- Set branch addresses ---
+tree.SetBranchAddress("HGCHit_layer", layer)
+tree.SetBranchAddress("HGCHit_energy", energy)
+tree.SetBranchAddress("HGCMetaData_trigTime", trigtime)
+
+# --- Get the desired event ---
+entry = args.event_number
+if entry < 0 or entry >= tree.GetEntries():
+    raise IndexError(f"Event number {entry} out of range (max = {tree.GetEntries()-1})")
+
+tree.GetEntry(entry)
+
+# --- Print info ---
+print(f"Trigger time: {trigtime}")
+print("Layers:", list(layer))
+print("Energies:", list(energy))
