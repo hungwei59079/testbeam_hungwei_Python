@@ -23,14 +23,16 @@ with uproot.open(args.filename) as file:
     arrays = tree.arrays(
         ["HGCHit_layer", "HGCHit_energy", "HGCMetaData_trigTime"],
         entry_start=entry,
-        entry_stop=entry + 9,
+        entry_stop=entry + 10,
     )
+
+# print(arrays)
 
 # --- Extract the data ---
 for i in range(10):
-    layers = arrays["HGCHit_layer"][0]
-    energies = arrays["HGCHit_energy"][0]
-    trigtime = arrays["HGCMetaData_trigTime"][0]
+    layers = arrays["HGCHit_layer"][i]
+    energies = arrays["HGCHit_energy"][i]
+    trigtime = arrays["HGCMetaData_trigTime"][i]
 
     # --- Print info ---
     print(f"Trigger time: {trigtime}")
