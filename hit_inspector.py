@@ -1,42 +1,71 @@
 import argparse
+import logging
+import os
+import subprocess
 
+import numpy as np
 import uproot
 
+# --- Logger setup ---
+logging.basicConfig(
+    filename="hit_inspector.log",
+    filemode="w",
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+# --- CLI setup ---
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", help="file_to_inspect")
 parser.add_argument("start_entry", type=int, help="event_number_to_inspect")
 parser.add_argument("end_entry", type=int, help="event_number_to_inspect")
 args = parser.parse_args()
 
-# --- Open the ROOT file and tree ---
 with uproot.open(args.filename) as file:
     if "Events" not in file:
         raise RuntimeError("Could not find TTree 'Events' in the file.")
     tree = file["Events"]
 
-    start_entry = int(args.start_entry)
-    end_entry = int(args.end_entry)
+    start_entry, end_entry = args.start_entry, args.end_entry
     if start_entry >= end_entry:
         raise IndexError("end_entry has to be larger than start_entry.")
     if start_entry < 0 or end_entry >= tree.num_entries:
         raise IndexError(f"Event numbers out of range (max = {tree.num_entries - 1})")
 
-    # --- Read only the branches you need, for a single entry ---
     arrays = tree.arrays(
-        ["HGCHit_layer", "HGCHit_energy", "HGCMetaData_trigTime"],
+        ["HGCHit_layer", "HGCHit_energy", "HGCMetaData_trigTime", "HGCDigi_channel"],
         entry_start=start_entry,
         entry_stop=end_entry,
     )
 
-# print(arrays)
+os.makedirs("inspector_output", exist_ok=True)
+os.chdir("inspector_output")
 
-# --- Extract the data ---
 for i in range(end_entry - start_entry):
+    os.makedirs(f"hitplot_event_{i}", exist_ok=True)
+    channels = arrays["HGCDigi_channel"][i]
     layers = arrays["HGCHit_layer"][i]
     energies = arrays["HGCHit_energy"][i]
     trigtime = arrays["HGCMetaData_trigTime"][i]
 
-    # --- Print info ---
-    print(f"Trigger time: {trigtime}")
-    print("Layers:", layers)
-    print("Energies:", energies)
+    logger.info(f"Inspecting event {i}, trigger time: {trigtime}")
+
+    for layer in range(1, 11):
+        # Extract per-layer energies here
+        os.makedirs(f"hitplot_event_{i}/values", exist_ok=True)
+        values = np.zeros(222)
+        mask = layers == layer
+        if np.any(mask):
+            ch = channels[mask]
+            en = energies[mask]
+            values[ch] = en
+
+        # Save temporary array
+        values_file = f"hitplot_event_{i}/values/values_layer_{layer}.txt"
+        np.savetxt(values_file, values)
+
+        name = f"hitplot_event_{i}/Event_{i}_layer_{layer}.png"
+        command = f'root -l -b -q \'../hexaplot_helper.C("{values_file}", "{name}")\''
+        logger.info(f"Executing command: {command}")
+        subprocess.call(command, shell=True)
