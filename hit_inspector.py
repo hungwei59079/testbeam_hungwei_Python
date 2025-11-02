@@ -1,4 +1,5 @@
 import argparse
+
 import uproot
 
 parser = argparse.ArgumentParser()
@@ -14,22 +15,24 @@ with uproot.open(args.filename) as file:
 
     entry = int(args.event_number)
     if entry < 0 or entry >= tree.num_entries:
-        raise IndexError(f"Event number {entry} out of range (max = {tree.num_entries - 1})")
+        raise IndexError(
+            f"Event number {entry} out of range (max = {tree.num_entries - 1})"
+        )
 
     # --- Read only the branches you need, for a single entry ---
     arrays = tree.arrays(
         ["HGCHit_layer", "HGCHit_energy", "HGCMetaData_trigTime"],
         entry_start=entry,
-        entry_stop=entry + 1
+        entry_stop=entry + 9,
     )
 
 # --- Extract the data ---
-layers = arrays["HGCHit_layer"][0]
-energies = arrays["HGCHit_energy"][0]
-trigtime = arrays["HGCMetaData_trigTime"][0]
+for i in range(10):
+    layers = arrays["HGCHit_layer"][0]
+    energies = arrays["HGCHit_energy"][0]
+    trigtime = arrays["HGCMetaData_trigTime"][0]
 
-# --- Print info ---
-print(f"Trigger time: {trigtime}")
-print("Layers:", layers)
-print("Energies:", energies)
-
+    # --- Print info ---
+    print(f"Trigger time: {trigtime}")
+    print("Layers:", layers)
+    print("Energies:", energies)
