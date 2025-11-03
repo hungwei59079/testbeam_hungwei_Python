@@ -1,0 +1,20 @@
+[2025-11-03 04:00:50,102] DEBUG: open file: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root
+[2025-11-03 04:00:50,115] DEBUG: open file: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root
+[2025-11-03 04:00:50,117] DEBUG: open file: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root
+[2025-11-03 04:00:50,150] DEBUG: Using selector: EpollSelector
+[2025-11-03 04:00:50,151] DEBUG: open file: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root
+[2025-11-03 04:00:50,152] DEBUG: open file: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root
+[2025-11-03 04:00:50,153] DEBUG: open file: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root
+[2025-11-03 04:00:50,375] INFO: Inspecting event 0, trigger time: 13
+[2025-11-03 04:00:50,375] DEBUG: Layers: [1, 2, 2, 3, 4, 5, 6, 6, 0, 8, 9, 7, 7, 7, 7, 10]
+[2025-11-03 04:00:50,375] DEBUG: Channels: [145, 20, 72, 145, 72, 145, 72, 148, 204, 64, 138, 96, 129, 145, 138]
+[2025-11-03 04:00:50,375] DEBUG: Energies: [13.4, 3.73, 20.8, 7.47, 11.9, 10.3, ..., 11.2, 6.64, 52.7, 52.7, 12.8, 6.83]
+[2025-11-03 04:00:50,386] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_1.txt", "hitplot_event_0/Event_0_layer_1.png")'
+[2025-11-03 04:00:55,696] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_2.txt", "hitplot_event_0/Event_0_layer_2.png")'
+[2025-11-03 04:01:00,736] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_3.txt", "hitplot_event_0/Event_0_layer_3.png")'
+[2025-11-03 04:01:06,739] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_4.txt", "hitplot_event_0/Event_0_layer_4.png")'
+[2025-11-03 04:01:11,281] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_5.txt", "hitplot_event_0/Event_0_layer_5.png")'
+[2025-11-03 04:01:15,872] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_6.txt", "hitplot_event_0/Event_0_layer_6.png")'
+[2025-11-03 04:01:20,421] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_7.txt", "hitplot_event_0/Event_0_layer_7.png")'
+[2025-11-03 04:01:25,064] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_8.txt", "hitplot_event_0/Event_0_layer_8.png")'
+[2025-11-03 04:01:29,596] INFO: Executing command: root -l -b -q '../hexaplot_helper.C("hitplot_event_0/values/values_layer_9.txt", "hitplot_event_0/Event_0_layer_9.png")'

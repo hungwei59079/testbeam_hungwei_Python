@@ -10,7 +10,7 @@ import uproot
 logging.basicConfig(
     filename="hit_inspector.log",
     filemode="w",
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="[%(asctime)s] %(levelname)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -43,17 +43,19 @@ os.makedirs("inspector_output", exist_ok=True)
 os.chdir("inspector_output")
 
 for i in range(end_entry - start_entry):
-    os.makedirs(f"hitplot_event_{i}", exist_ok=True)
+    os.makedirs(f"hitplot_event_{i}/values", exist_ok=True)
     channels = arrays["HGCDigi_channel"][i]
     layers = arrays["HGCHit_layer"][i]
     energies = arrays["HGCHit_energy"][i]
     trigtime = arrays["HGCMetaData_trigTime"][i]
 
     logger.info(f"Inspecting event {i}, trigger time: {trigtime}")
+    logger.debug(f"Layers: {layers}")
+    logger.debug(f"Channels: {channels}")
+    logger.debug(f"Energies: {energies}")
 
     for layer in range(1, 11):
         # Extract per-layer energies here
-        os.makedirs(f"hitplot_event_{i}/values", exist_ok=True)
         values = np.zeros(222)
         mask = layers == layer
         if np.any(mask):
