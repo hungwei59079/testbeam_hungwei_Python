@@ -80,7 +80,7 @@ for i in range(end_entry - start_entry):
         np.savetxt(values_file, values)
 
         name = f"hitplot_event_{i}/Event_{i}_layer_{layer}.png"  # Captalized E used intentionally. Convenient for cleaning.
-        command = f'root -l -b -q \'../hexaplot_helper.C("{values_file}", "{name}")\''
+        command = f'root -l -b -q \'../../hexaplot_helper.C("{values_file}", "{name}")\''
         logger.info(f"Executing command: {command}")
         subprocess.call(command, shell=True)
 
