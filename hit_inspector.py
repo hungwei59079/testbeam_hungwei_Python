@@ -84,7 +84,7 @@ for i in range(end_entry - start_entry):
     fig, axes = plt.subplots(2, 5, figsize=(15, 6))  # 2 rows × 5 columns
     axes = axes.flatten()
     for layer in range(1, 11):
-        img_path = f"hitplot_event{i}/Event_{i}_layer_{layer}.png"
+        img_path = f"hitplot_event_{i}/Event_{i}_layer_{layer}.png"
         img = mpimg.imread(img_path)
         axes[layer - 1].imshow(img)
         axes[layer - 1].set_title(f"Layer {layer}")
