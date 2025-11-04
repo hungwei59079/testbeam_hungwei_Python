@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 # --- CLI setup ---
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "clean", help="clean up intermediate files or not", action="store_true"
+    "--clean", help="clean up intermediate files or not", action="store_true"
 )
 parser.add_argument("filename", help="file_to_inspect")
 parser.add_argument("start_entry", type=int, help="event_number_to_inspect")
@@ -100,4 +100,5 @@ for i in range(end_entry - start_entry):
     if args.clean:
         for layer in range(1, 11):
             os.remove(f"hitplot_event_{i}/Event_{i}_layer_{layer}.png")
-            shutil.rmtree("hitplot_event_{i}/values")
+
+        shutil.rmtree(f"hitplot_event_{i}/values")
