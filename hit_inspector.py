@@ -3,6 +3,8 @@ import logging
 import os
 import subprocess
 
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 import numpy as np
 import uproot
 
@@ -77,3 +79,17 @@ for i in range(end_entry - start_entry):
         command = f'root -l -b -q \'../hexaplot_helper.C("{values_file}", "{name}")\''
         logger.info(f"Executing command: {command}")
         subprocess.call(command, shell=True)
+
+    logger.info("Event processing complete. Merging figures......")
+    fig, axes = plt.subplots(2, 5, figsize=(15, 6))  # 2 rows × 5 columns
+    axes = axes.flatten()
+    for layer in range(1, 11):
+        img_path = f"hitplot_event{i}/Event_{i}_layer_{layer}.png"
+        img = mpimg.imread(img_path)
+        axes[layer - 1].imshow(img)
+        axes[layer - 1].set_title(f"Layer {layer}")
+        axes[layer - 1].axis("off")
+
+    plt.tight_layout()
+    plt.savefig(f"hitplot_event_{i}/event_{i}_all_layers.png", dpi=200)
+    plt.show()
