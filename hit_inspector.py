@@ -43,17 +43,23 @@ os.makedirs("inspector_output", exist_ok=True)
 os.chdir("inspector_output")
 
 for i in range(end_entry - start_entry):
-    os.makedirs(f"hitplot_event_{i}/values", exist_ok=True)
     channels = arrays["HGCDigi_channel"][i]
     layers = arrays["HGCHit_layer"][i]
     energies = arrays["HGCHit_energy"][i]
     trigtime = arrays["HGCMetaData_trigTime"][i]
-
     logger.info(f"Inspecting event {i}, trigger time: {trigtime}")
     logger.debug(f"Layers: {layers}")
     logger.debug(f"Channels: {channels}")
     logger.debug(f"Energies: {energies}")
 
+    if len(channels) != len(layers) or len(channels) != len(energies):
+        os.makedirs(f"hitplot_event_{i}_bad", exist_ok=True)
+        logger.info(
+            f"Warning: Array size mismatch detected in event {i}. Skipping with an empty directory created."
+        )
+        continue
+
+    os.makedirs(f"hitplot_event_{i}/values", exist_ok=True)
     for layer in range(1, 11):
         # Extract per-layer energies here
         values = np.zeros(222)
