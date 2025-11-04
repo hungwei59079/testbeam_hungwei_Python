@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import shutil
 import subprocess
 
 import matplotlib.image as mpimg
@@ -19,6 +20,9 @@ logger = logging.getLogger(__name__)
 
 # --- CLI setup ---
 parser = argparse.ArgumentParser()
+parser.add_argument(
+    "clean", help="clean up intermediate files or not", action="store_true"
+)
 parser.add_argument("filename", help="file_to_inspect")
 parser.add_argument("start_entry", type=int, help="event_number_to_inspect")
 parser.add_argument("end_entry", type=int, help="event_number_to_inspect")
@@ -75,7 +79,7 @@ for i in range(end_entry - start_entry):
         values_file = f"hitplot_event_{i}/values/values_layer_{layer}.txt"
         np.savetxt(values_file, values)
 
-        name = f"hitplot_event_{i}/Event_{i}_layer_{layer}.png"
+        name = f"hitplot_event_{i}/Event_{i}_layer_{layer}.png"  # Captalized E used intentionally. Convenient for cleaning.
         command = f'root -l -b -q \'../hexaplot_helper.C("{values_file}", "{name}")\''
         logger.info(f"Executing command: {command}")
         subprocess.call(command, shell=True)
@@ -92,4 +96,8 @@ for i in range(end_entry - start_entry):
 
     plt.tight_layout()
     plt.savefig(f"hitplot_event_{i}/event_{i}_all_layers.png", dpi=200)
-    plt.show()
+
+    if args.clean:
+        for layer in range(1, 11):
+            os.remove(f"hitplot_event_{i}/Event_{i}_layer_{layer}.png")
+            shutil.rmtree("hitplot_event_{i}/values")
