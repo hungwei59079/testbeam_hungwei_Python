@@ -1,0 +1,18 @@
+# HTCondor job description file
+
+# --- General info ---
+executable     = run_hit_inspector.sh
+arguments      = $(ProcId)
+output         = logs/out_$(Cluster)_$(ProcId).txt
+error          = logs/err_$(Cluster)_$(ProcId).txt
+log            = logs/condor_$(Cluster).log
+request_cpus   = 1
+request_memory = 2 GB
++JobFlavour    = "microcentury"   # 1 hour runtime (see table below)
+transfer_input_files = hit_inspector.py
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT
+
+
+# --- Job array equivalent ---
+queue filename, start, end from hit_inspector_jobs.txt
