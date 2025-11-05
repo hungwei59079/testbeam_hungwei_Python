@@ -1,5 +1,6 @@
 import argparse
-import logging
+
+# import logging
 import os
 import shutil
 import subprocess
@@ -10,13 +11,13 @@ import numpy as np
 import uproot
 
 # --- Logger setup ---
-logging.basicConfig(
-    filename="hit_inspector.log",
-    filemode="w",
-    level=logging.DEBUG,
-    format="[%(asctime)s] %(levelname)s: %(message)s",
-)
-logger = logging.getLogger(__name__)
+# logging.basicConfig(
+#    filename="hit_inspector.log",
+#     filemode="w",
+#     level=logging.DEBUG,
+#     format="[%(asctime)s] %(levelname)s: %(message)s",
+# )
+# logger = logging.getLogger(__name__)
 
 # --- CLI setup ---
 parser = argparse.ArgumentParser()
@@ -56,14 +57,21 @@ for i in range(end_entry - start_entry):
     layers = arrays["HGCHit_layer"][i]
     energies = arrays["HGCHit_energy"][i]
     trigtime = arrays["HGCMetaData_trigTime"][i]
-    logger.info(f"Inspecting event {event_number}, trigger time: {trigtime}")
-    logger.debug(f"Layers: {layers}")
-    logger.debug(f"Channels: {channels}")
-    logger.debug(f"Energies: {energies}")
+    # logger.info(f"Inspecting event {event_number}, trigger time: {trigtime}")
+    # logger.debug(f"Layers: {layers}")
+    # logger.debug(f"Channels: {channels}")
+    # logger.debug(f"Energies: {energies}")
+    print(f"Inspecting event {event_number}, trigger time: {trigtime}")
+    print(f"Layers: {layers}")
+    print(f"Channels: {channels}")
+    print(f"Energies: {energies}")
 
     if len(channels) != len(layers) or len(channels) != len(energies):
         os.makedirs(f"hitplot_event_{event_number}_bad", exist_ok=True)
-        logger.info(
+        # logger.info(
+        #   f"Warning: Array size mismatch detected in event {event_number}. Skipping with an empty directory created."
+        # )
+        print(
             f"Warning: Array size mismatch detected in event {event_number}. Skipping with an empty directory created."
         )
         continue
@@ -83,25 +91,31 @@ for i in range(end_entry - start_entry):
         np.savetxt(values_file, values)
 
         name = f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png"  # Captalized E used intentionally. Convenient for cleaning.
-        command = f'root -l -b -q \'../../hexaplot_helper.C("{values_file}", "{name}")\''
-        logger.info(f"Executing command: {command}")
+        command = (
+            f'root -l -b -q \'../../hexaplot_helper.C("{values_file}", "{name}")\''
+        )
+        # logger.info(f"Executing command: {command}")
+        print(f"Executing command: {command}")
         subprocess.call(command, shell=True)
 
-    logger.info("Event processing complete. Merging figures......")
+    # logger.info("Event processing complete. Merging figures......")
+    print(f"Event processing complete. Merging figures......")
     fig, axes = plt.subplots(2, 5, figsize=(15, 6))  # 2 rows × 5 columns
     axes = axes.flatten()
     for layer in range(1, 11):
-        img_path = f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png"
+        img_path = (
+            f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png"
+        )
         img = mpimg.imread(img_path)
         axes[layer - 1].imshow(img)
         axes[layer - 1].set_title(f"Layer {layer}")
         axes[layer - 1].axis("off")
 
     plt.tight_layout()
-    plt.savefig(f"hitplot_event_{event_number}/event_{event_number}_all_layers.png", dpi=200)
+    plt.savefig(f"event_{event_number}_all_layers.png", dpi=200)
 
     if args.clean:
-        for layer in range(1, 11):
-            os.remove(f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png")
+        # for layer in range(1, 11):
+        # os.remove(f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png")
 
-        shutil.rmtree(f"hitplot_event_{event_number}/values")
+        shutil.rmtree(f"hitplot_event_{event_number}")
