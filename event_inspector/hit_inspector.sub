@@ -2,7 +2,7 @@
 
 # --- General info ---
 executable     = run_hit_inspector.sh
-arguments      = $(ProcId)
+arguments      = $(FILENAME) $(START) $(END)
 output         = logs/out_$(Cluster)_$(ProcId).txt
 error          = logs/err_$(Cluster)_$(ProcId).txt
 log            = logs/condor_$(Cluster).log
@@ -15,4 +15,4 @@ when_to_transfer_output = ON_EXIT
 
 
 # --- Job array equivalent ---
-queue filename, start, end from hit_inspector_jobs.txt
+queue FILENAME, START, END from hit_inspector_jobs.txt

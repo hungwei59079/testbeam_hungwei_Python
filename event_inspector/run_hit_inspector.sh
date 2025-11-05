@@ -9,9 +9,9 @@ cd ~/CMSSW_16_0_0_pre1/src       # <-- modify to your CMSSW directory
 eval `scramv1 runtime -sh`
 
 # 2. Go back to working directory
-cd $PWD/$(dirname "$0")          # Condor job directory (optional sanity check)
+cd ~/testbeam_hungwei_Python/event_inspector          # Condor job directory (optional sanity check)
 
 # 3. Run the Python script
-python3 hit_inspector.py "$1" "$2" "$3"
+python3 hit_inspector.py "$1" "$2" "$3" --clean
 
 echo "[$(date)] Done."

@@ -28,6 +28,8 @@ parser.add_argument("start_entry", type=int, help="event_number_to_inspect")
 parser.add_argument("end_entry", type=int, help="event_number_to_inspect")
 args = parser.parse_args()
 
+print(args.start_entry)
+print(args.end_entry)
 with uproot.open(args.filename) as file:
     if "Events" not in file:
         raise RuntimeError("Could not find TTree 'Events' in the file.")
@@ -49,23 +51,24 @@ os.makedirs("inspector_output", exist_ok=True)
 os.chdir("inspector_output")
 
 for i in range(end_entry - start_entry):
+    event_number = i + start_entry
     channels = arrays["HGCDigi_channel"][i]
     layers = arrays["HGCHit_layer"][i]
     energies = arrays["HGCHit_energy"][i]
     trigtime = arrays["HGCMetaData_trigTime"][i]
-    logger.info(f"Inspecting event {i}, trigger time: {trigtime}")
+    logger.info(f"Inspecting event {event_number}, trigger time: {trigtime}")
     logger.debug(f"Layers: {layers}")
     logger.debug(f"Channels: {channels}")
     logger.debug(f"Energies: {energies}")
 
     if len(channels) != len(layers) or len(channels) != len(energies):
-        os.makedirs(f"hitplot_event_{i}_bad", exist_ok=True)
+        os.makedirs(f"hitplot_event_{event_number}_bad", exist_ok=True)
         logger.info(
-            f"Warning: Array size mismatch detected in event {i}. Skipping with an empty directory created."
+            f"Warning: Array size mismatch detected in event {event_number}. Skipping with an empty directory created."
         )
         continue
 
-    os.makedirs(f"hitplot_event_{i}/values", exist_ok=True)
+    os.makedirs(f"hitplot_event_{event_number}/values", exist_ok=True)
     for layer in range(1, 11):
         # Extract per-layer energies here
         values = np.zeros(222)
@@ -76,10 +79,10 @@ for i in range(end_entry - start_entry):
             values[ch] = en
 
         # Save temporary array
-        values_file = f"hitplot_event_{i}/values/values_layer_{layer}.txt"
+        values_file = f"hitplot_event_{event_number}/values/values_layer_{layer}.txt"
         np.savetxt(values_file, values)
 
-        name = f"hitplot_event_{i}/Event_{i}_layer_{layer}.png"  # Captalized E used intentionally. Convenient for cleaning.
+        name = f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png"  # Captalized E used intentionally. Convenient for cleaning.
         command = f'root -l -b -q \'../../hexaplot_helper.C("{values_file}", "{name}")\''
         logger.info(f"Executing command: {command}")
         subprocess.call(command, shell=True)
@@ -88,17 +91,17 @@ for i in range(end_entry - start_entry):
     fig, axes = plt.subplots(2, 5, figsize=(15, 6))  # 2 rows × 5 columns
     axes = axes.flatten()
     for layer in range(1, 11):
-        img_path = f"hitplot_event_{i}/Event_{i}_layer_{layer}.png"
+        img_path = f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png"
         img = mpimg.imread(img_path)
         axes[layer - 1].imshow(img)
         axes[layer - 1].set_title(f"Layer {layer}")
         axes[layer - 1].axis("off")
 
     plt.tight_layout()
-    plt.savefig(f"hitplot_event_{i}/event_{i}_all_layers.png", dpi=200)
+    plt.savefig(f"hitplot_event_{event_number}/event_{event_number}_all_layers.png", dpi=200)
 
     if args.clean:
         for layer in range(1, 11):
-            os.remove(f"hitplot_event_{i}/Event_{i}_layer_{layer}.png")
+            os.remove(f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}.png")
 
-        shutil.rmtree(f"hitplot_event_{i}/values")
+        shutil.rmtree(f"hitplot_event_{event_number}/values")
