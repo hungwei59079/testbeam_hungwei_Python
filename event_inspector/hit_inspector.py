@@ -31,6 +31,7 @@ args = parser.parse_args()
 
 print(args.start_entry)
 print(args.end_entry)
+print(args.filename)
 with uproot.open(args.filename) as file:
     if "Events" not in file:
         raise RuntimeError("Could not find TTree 'Events' in the file.")
