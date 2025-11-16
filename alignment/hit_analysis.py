@@ -65,4 +65,6 @@ print("Total events:", n_total)
 print("Passed selection:", n_pass)
 
 entries = rdf_sel.AsNumpy(["entry"])["entry"]
-print(entries)
+with open("passed_event_index.txt","w") as file:
+    for entry in entries:
+        file.write(f"{entry}\n")

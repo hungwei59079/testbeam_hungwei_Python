@@ -40,7 +40,7 @@ bool ArrayMatchCheck(const RVec<int> &layers, const RVec<int> &channels) {
 // 4. Adjacent hit distance check
 // ------------------------------------------------------------
 bool AdjacentHitsCheck(const RVec<int> &layers, const RVec<int> &channels,
-                       double maxDist = 20.0) {
+                       double maxDist = 1.7) {
   std::map<int, int> freq;
   for (int l : layers)
     freq[l]++;
