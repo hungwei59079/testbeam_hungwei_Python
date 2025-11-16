@@ -16,13 +16,16 @@ for ch, (x,y) in digi_coords.items():
     ROOT.digiCoordMap[int(ch)] = ROOT.std.pair("float","float")(x, y)
 
 #Step 2: C++ selection helper function.
-ROOT.gInterpreter.Declare(R"cpp(
+ROOT.gInterpreter.Declare(r"""
+
+#include <ROOT/RVec.hxx>
+using ROOT::VecOps::RVec;
 
 // ------------------------------------------------------------
 // 1. Unique-layer selection
 // Event must have >= 5 unique HGCHit_layer values
 // ------------------------------------------------------------
-bool UniqueLayersCheck(const std::vector<int>& layers) {
+bool UniqueLayersCheck(const RVec<int>& layers) {
     std::set<int> uniq(layers.begin(), layers.end());
     return uniq.size() >= 5;
 }
@@ -31,7 +34,7 @@ bool UniqueLayersCheck(const std::vector<int>& layers) {
 // 2. Max-per-layer selection
 // No layer can have >= 4 hits
 // ------------------------------------------------------------
-bool MaxHitsPerLayerCheck(const std::vector<int>& layers) {
+bool MaxHitsPerLayerCheck(const RVec<int>& layers) {
     std::map<int,int> freq;
     for (int l : layers) freq[l]++;
     for (auto& kv : freq)
@@ -44,8 +47,8 @@ bool MaxHitsPerLayerCheck(const std::vector<int>& layers) {
 // 3. Size consistency check
 // Arrays must be same size
 // ------------------------------------------------------------
-bool ArrayMatchCheck(const std::vector<int>& layers,
-                     const std::vector<int>& channels)
+bool ArrayMatchCheck(const RVec<int>& layers,
+                     const RVec<int>& channels)
 {
     return layers.size() == channels.size();
 }
@@ -54,8 +57,8 @@ bool ArrayMatchCheck(const std::vector<int>& layers,
 // 4. Adjacent-hit check using digiCoordMap
 // For layers with 2–3 hits, check channel distance
 // ------------------------------------------------------------
-bool AdjacentHitsCheck(const std::vector<int>& layers,
-                       const std::vector<int>& channels,
+bool AdjacentHitsCheck(const RVec<int>& layers,
+                       const RVec<int>& channels,
                        double maxDist = 20.0)
 {
     std::map<int,int> freq;
@@ -93,8 +96,7 @@ bool AdjacentHitsCheck(const std::vector<int>& layers,
     return true;
 }
 
-)cpp");
-
+""")
 
 #Step 3: Loop over files.
 
