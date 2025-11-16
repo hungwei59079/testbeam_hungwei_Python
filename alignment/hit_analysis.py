@@ -1,12 +1,12 @@
 import json
 import os
-import ROOT
 
+import ROOT
 
 # Step 1: Load the selection functions and declared objects from the helper script.
 ROOT.gInterpreter.ProcessLine(".L selection.C+")
 
-# Step 2: Load coordinates and initialize the uninitialize std::map 
+# Step 2: Load coordinates and initialize the uninitialize std::map
 with open("digi_coordinates.json") as f:
     digi_coords = json.load(f)
 
@@ -42,8 +42,7 @@ for filename in found_file_path:
 # Debug Section
 
 filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
-rdf = ROOT.RDataFrame("Events", filename)
-
+rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
 rdf_sel = (
     rdf.Filter(
         "HGCMetaData_trigTime >= 18 && HGCMetaData_trigTime <= 21", "TrigTime selection"
@@ -64,3 +63,6 @@ n_pass = rdf_sel.Count().GetValue()
 
 print("Total events:", n_total)
 print("Passed selection:", n_pass)
+
+entries = rdf_sel.AsNumpy(["entry"])["entry"]
+print(entries)
