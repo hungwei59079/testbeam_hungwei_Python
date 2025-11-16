@@ -7,8 +7,7 @@
 using ROOT::VecOps::RVec;
 
 // external global defined in Python
-extern std::map<int, std::pair<float, float>> digiCoordMap;
-
+std::map<int, std::pair<float, float>> digiCoordMap;
 // ------------------------------------------------------------
 // 1. Unique layer check
 // ------------------------------------------------------------
