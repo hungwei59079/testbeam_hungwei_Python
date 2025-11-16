@@ -1,5 +1,11 @@
+# Event_inspector outputs:
 inspector_output
 test.png
 tutorial.png
 hungwei.cc
 logs
+
+# Alignment outputs:
+*.so
+*.d
+*.pcm

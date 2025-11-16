@@ -1,22 +1,18 @@
 import json
 import os
-
 import ROOT
 
+
+# Step 1: Load the selection functions and declared objects from the helper script.
 ROOT.gInterpreter.ProcessLine(".L selection.C+")
-# Step 2: Load coordinates and save them as ROOT objects
+
+# Step 2: Load coordinates and initialize the uninitialize std::map 
 with open("digi_coordinates.json") as f:
     digi_coords = json.load(f)
 
-ROOT.gInterpreter.Declare(
-    """
-std::map<int, std::pair<float,float>> digiCoordMap;
-"""
-)
 for ch, (x, y) in digi_coords.items():
     ROOT.digiCoordMap[int(ch)] = ROOT.std.pair("float", "float")(x, y)
 
-# Step 1: Load the selection functions and declared objects from the helper script.
 
 # Step 3: Loop over files.
 
