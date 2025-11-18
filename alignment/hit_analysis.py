@@ -69,11 +69,12 @@ n_pass = rdf_sel.Count().GetValue()
 print("Total events:", n_total)
 print("Passed selection:", n_pass)
 
+event_index = rdf_sel.Take[rdf_sel.GetColumnType("entry")]("entry").GetValue()
 coords_x = rdf_sel.Take[rdf_sel.GetColumnType("x_hits")]("x_hits").GetValue()
 coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
 
 for i in range(5):
-    print(f"Event {i}:")
+    print(f"Event {event_index[i]}:")
     for j in range(11):
         print(f"Layer {j}; X = {coords_x[i][j]}, Y = {coords_y[i][j]}")
     print("-" * 30)
