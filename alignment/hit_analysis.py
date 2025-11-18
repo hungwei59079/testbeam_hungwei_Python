@@ -69,12 +69,13 @@ n_pass = rdf_sel.Count().GetValue()
 print("Total events:", n_total)
 print("Passed selection:", n_pass)
 
-coords_vec = rdf_sel.Take("WeightedCoords").GetValue()
+coords_x = rdf_sel.Take("WeightedX").GetValue()
+coords_y = rdf_sel.Take("WeightedY").GetValue()
 
 for i in range(5):
     print(f"Event {i}:")
-    for layer, xy in coords_vec[i].items():
-        print(f"  Layer {layer}: ({xy.first:.3f}, {xy.second:.3f})")
+    for i in range(11):
+        print(f"Layer {i}; X = {coords_x[i]}, Y = {coords_y[i]}")
     print("-" * 30)
 
 """
