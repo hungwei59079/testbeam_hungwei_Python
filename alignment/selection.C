@@ -13,6 +13,11 @@ std::map<int, std::pair<float, float>> digiCoordMap;
 // ------------------------------------------------------------
 bool UniqueLayersCheck(const RVec<int> &layers) {
   std::set<int> uniq(layers.begin(), layers.end());
+
+  // Remove zero - which represents disconnected channels - if present
+  uniq.erase(0);
+
+  // Check if number of NONZERO unique elements is at least 5
   return uniq.size() >= 5;
 }
 
