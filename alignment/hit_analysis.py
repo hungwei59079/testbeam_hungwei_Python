@@ -71,15 +71,11 @@ print("Passed selection:", n_pass)
 
 coords_x = rdf_sel.Take[rdf_sel.GetColumnType("x_hits")]("x_hits").GetValue()
 coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
-test_take = rdf_sel.Take[rdf.GetColumnType("HGCMetaData_trigTime")](
-    "HGCMetaData_trigTime"
-).GetValue()
 
 for i in range(5):
     print(f"Event {i}:")
-    # print(f"TrigTime = {test_take}")
-    for i in range(11):
-        print(f"Layer {i}; X = {coords_x[i]}, Y = {coords_y[i]}")
+    for j in range(11):
+        print(f"Layer {j}; X = {coords_x[j]}, Y = {coords_y[j]}")
     print("-" * 30)
 
 """
