@@ -39,7 +39,7 @@ for filename in found_file_path:
 print(f"found {len(found_file_path)} files. Processing......")
 
 
-#rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
+# rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
 
 filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
 rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
@@ -57,6 +57,10 @@ rdf_sel = (
         "AdjacentHitsCheck(HGCHit_layer, HGCDigi_channel)",
         "Adjacent hit geometry check",
     )
+    .Define(
+        "WeightedCoords",
+        "WeightedLayerCoordinates(HGCHit_layer, HGCDigi_channel, HGCDigi_adc)",
+    )
 )
 
 print("Counting number of passed events...")
@@ -67,7 +71,13 @@ n_pass = rdf_sel.Count().GetValue()
 print("Total events:", n_total)
 print("Passed selection:", n_pass)
 
-entries = rdf_sel.AsNumpy(["entry"])["entry"]
+coords_vec = rdf_sel.Take("WeightedCoords").GetValue()
+
+for i in range(5):
+    print(f"Event {i}:")
+    for layer, xy in coords_vec[i].items():
+        print(f"  Layer {layer}: ({xy.first:.3f}, {xy.second:.3f})")
+    print("-" * 30)
 
 """
 with open("passed_event_index.txt","w") as file:
