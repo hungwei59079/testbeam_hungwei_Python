@@ -69,8 +69,8 @@ n_pass = rdf_sel.Count().GetValue()
 print("Total events:", n_total)
 print("Passed selection:", n_pass)
 
-coords_x = rdf_sel.Take[rdf.GetColumnType("x_hits")]("WeightedX").GetValue()
-coords_y = rdf_sel.Take[rdf.GetColumnType("y_hits")]("WeightedY").GetValue()
+coords_x = rdf_sel.Take[rdf.GetColumnType("x_hits")]("x_hits").GetValue()
+coords_y = rdf_sel.Take[rdf.GetColumnType("y_hits")]("y_hits").GetValue()
 test_take = rdf_sel.Take[rdf.GetColumnType("HGCMetaData_trigTime")](
     "HGCMetaData_trigTime"
 ).GetValue()
