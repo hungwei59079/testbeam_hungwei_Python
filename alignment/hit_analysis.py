@@ -36,9 +36,14 @@ for filename in found_file_path:
     n_events = rdf.Count().GetValue()
     print(f"  → Number of events: {n_events}")
 """
+print(f"found {len(found_file_path)} files. Processing......")
 
-# Debug Section
-rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
+
+#rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
+
+filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
+rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
+
 rdf_sel = (
     rdf.Filter(
         "HGCMetaData_trigTime >= 18 && HGCMetaData_trigTime <= 21", "TrigTime selection"
@@ -53,6 +58,8 @@ rdf_sel = (
         "Adjacent hit geometry check",
     )
 )
+
+print("Counting number of passed events...")
 
 n_total = rdf.Count().GetValue()
 n_pass = rdf_sel.Count().GetValue()
