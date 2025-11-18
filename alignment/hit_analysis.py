@@ -71,7 +71,7 @@ print("Passed selection:", n_pass)
 
 # coords_x = rdf_sel.Take[rdf.GetColumnType("WeightedX")]("WeightedX").GetValue()
 # coords_y = rdf_sel.Take[rdf.GetColumnType("WeightedY")]("WeightedY").GetValue()
-test_take = rdf_sel.Take("HGCMetaData_trigTime").GetValue()
+test_take = rdf_sel.Take["int"]("HGCMetaData_trigTime").GetValue()
 
 for i in range(5):
     print(f"Event {i}:")
