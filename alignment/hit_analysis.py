@@ -75,8 +75,8 @@ coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
 
 for i in range(5):
     print(f"Event {event_index[i]}:")
-    for j in range(11):
-        print(f"Layer {j}; X = {coords_x[i][j]}, Y = {coords_y[i][j]}")
+    for j in range(1, 11):
+        print(f"Layer {j}; X = {coords_x[i][j-1]}, Y = {coords_y[i][j-1]}")
     print("-" * 30)
 
 """
