@@ -57,10 +57,8 @@ rdf_sel = (
         "AdjacentHitsCheck(HGCHit_layer, HGCDigi_channel)",
         "Adjacent hit geometry check",
     )
-    .Define(
-        "WeightedCoords",
-        "WeightedLayerCoordinates(HGCHit_layer, HGCDigi_channel, HGCDigi_adc)",
-    )
+    .Define("x_hits", "WeightedX(HGCHit_layer, HGCDigi_channel, HGCHit_energy)")
+    .Define("y_hits", "WeightedY(HGCHit_layer, HGCDigi_channel, HGCHit_energy)")
 )
 
 print("Counting number of passed events...")

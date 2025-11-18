@@ -84,48 +84,58 @@ bool AdjacentHitsCheck(const RVec<int> &layers, const RVec<int> &channels,
   return true;
 }
 
-std::map<int, std::pair<float, float>>
-WeightedLayerCoordinates(const ROOT::RVec<int> &layers,
-                         const ROOT::RVec<int> &channels,
-                         const ROOT::RVec<float> &adcs) {
-  std::unordered_map<int, float> sumA;
-  std::unordered_map<int, float> sumAx;
-  std::unordered_map<int, float> sumAy;
+ROOT::RVec<float> WeightedX(const ROOT::RVec<int> &layers,
+                            const ROOT::RVec<int> &channels,
+                            const ROOT::RVec<float> &adcs) {
+  ROOT::RVec<float> x_out(10, NAN);
 
-  // Accumulate per-layer weighted sums
+  std::unordered_map<int, float> sumA, sumAx;
+
+  for (size_t i = 0; i < layers.size(); i++) {
+    int L = layers[i]; // 1..10
+    int ch = channels[i];
+    float A = adcs[i];
+
+    auto coord = digiCoordMap[ch];
+    float x = coord.first;
+
+    sumA[L] += A;
+    sumAx[L] += A * x;
+  }
+
+  for (int L = 1; L <= 10; L++) {
+    if (sumA.count(L)) {
+      x_out[L - 1] = sumAx[L] / sumA[L];
+    }
+  }
+
+  return x_out;
+}
+
+ROOT::RVec<float> WeightedY(const ROOT::RVec<int> &layers,
+                            const ROOT::RVec<int> &channels,
+                            const ROOT::RVec<float> &adcs) {
+  ROOT::RVec<float> y_out(10, NAN);
+
+  std::unordered_map<int, float> sumA, sumAy;
+
   for (size_t i = 0; i < layers.size(); i++) {
     int L = layers[i];
     int ch = channels[i];
     float A = adcs[i];
 
-    auto coord = digiCoordMap[ch]; // pair<float,float>
-    float x = coord.first;
+    auto coord = digiCoordMap[ch];
     float y = coord.second;
 
     sumA[L] += A;
-    sumAx[L] += A * x;
     sumAy[L] += A * y;
   }
 
-  std::map<int, std::pair<float, float>> out;
-
-  // Layers hit in this event → weighted average
-  for (auto &kv : sumA) {
-    int L = kv.first;
-    float A = kv.second;
-    if (A > 0) {
-      float xw = sumAx[L] / A;
-      float yw = sumAy[L] / A;
-      out[L] = {xw, yw};
-    }
-  }
-
-  // Now fill missing layers with NaN
   for (int L = 1; L <= 10; L++) {
-    if (out.find(L) == out.end()) {
-      out[L] = {NAN, NAN};
+    if (sumA.count(L)) {
+      y_out[L - 1] = sumAy[L] / sumA[L];
     }
   }
 
-  return out;
+  return y_out;
 }
