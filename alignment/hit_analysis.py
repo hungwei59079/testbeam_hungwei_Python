@@ -69,15 +69,15 @@ n_pass = rdf_sel.Count().GetValue()
 print("Total events:", n_total)
 print("Passed selection:", n_pass)
 
-# coords_x = rdf_sel.Take("WeightedX").GetValue()
-# coords_y = rdf_sel.Take("WeightedY").GetValue()
-test_take = rdf_sel.Take("HGCMetaData_trigTime").GetValue()
+coords_x = rdf_sel.Take[rdf.GetColumnType("WeightedX")]("WeightedX").GetValue()
+coords_y = rdf_sel.Take[rdf.GetColumnType("WeightedY")]("WeightedY").GetValue()
+# test_take = rdf_sel.Take("HGCMetaData_trigTime").GetValue()
 
 for i in range(5):
     print(f"Event {i}:")
-    print(f"TrigTime = {test_take}")
-    # for i in range(11):
-    # print(f"Layer {i}; X = {coords_x[i]}, Y = {coords_y[i]}")
+    # print(f"TrigTime = {test_take}")
+    for i in range(11):
+        print(f"Layer {i}; X = {coords_x[i]}, Y = {coords_y[i]}")
     print("-" * 30)
 
 """
