@@ -107,6 +107,9 @@ ROOT::RVec<float> WeightedX(const ROOT::RVec<int> &layers,
     if (sumA.count(L)) {
       x_out[L - 1] = sumAx[L] / sumA[L];
     }
+    if (L == 2 || L == 4 || L == 6 || L == 8) {
+      x_out[L - 1] *= -1;
+    }
   }
 
   return x_out;
