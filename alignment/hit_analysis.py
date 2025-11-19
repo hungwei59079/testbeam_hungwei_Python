@@ -39,10 +39,10 @@ for filename in found_file_path:
 print(f"found {len(found_file_path)} files. Processing......")
 
 
-# rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
+rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
 
-filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
-rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
+# filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
+# rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
 
 rdf_sel = (
     rdf.Filter(
@@ -63,12 +63,26 @@ rdf_sel = (
 
 print("Counting number of passed events...")
 
-n_total = rdf.Count().GetValue()
-n_pass = rdf_sel.Count().GetValue()
+# n_total = rdf.Count().GetValue()
+# n_pass = rdf_sel.Count().GetValue()
 
-print("Total events:", n_total)
-print("Passed selection:", n_pass)
+# print("Total events:", n_total)
+# print("Passed selection:", n_pass)
 
+out_file = "selected_hits.root"
+out_tree = "HitCoords"  # name of the output tree
+
+print(f"Saving selected coordinates to {out_file}...")
+
+cols_to_save = ROOT.std.vector("string")()
+cols_to_save.push_back("x_hits")
+cols_to_save.push_back("y_hits")
+
+rdf_sel.Snapshot(out_tree, out_file, cols_to_save)
+
+print("Done. File saved.")
+
+"""
 event_index = rdf_sel.Take[rdf_sel.GetColumnType("entry")]("entry").GetValue()
 coords_x = rdf_sel.Take[rdf_sel.GetColumnType("x_hits")]("x_hits").GetValue()
 coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
@@ -78,6 +92,8 @@ for i in range(5):
     for j in range(1, 11):
         print(f"Layer {j}; X = {coords_x[i][j-1]}, Y = {coords_y[i][j-1]}")
     print("-" * 30)
+
+"""
 
 """
 with open("passed_event_index.txt","w") as file:
