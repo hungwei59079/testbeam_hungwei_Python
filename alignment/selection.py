@@ -24,25 +24,14 @@ for dirpath, _, filenames in os.walk(search_base):
             full_path = os.path.join(dirpath, filename)
             found_file_path.append(full_path)
 
-"""
-# Loop over found ROOT files
-for filename in found_file_path:
-    print(f"Opening file: {filename}")
-
-    # Create an RDataFrame for the "Events" tree
-    rdf = ROOT.RDataFrame("Events", filename)
-
-    # Example: print how many events are in the tree
-    n_events = rdf.Count().GetValue()
-    print(f"  → Number of events: {n_events}")
-"""
 print(f"found {len(found_file_path)} files. Processing......")
 
 
 rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
 
+# Comment the previous line and uncomment the following lines if you just want to test one file.
 # filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
-# rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
+#rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
 
 rdf_sel = (
     rdf.Filter(
@@ -63,11 +52,12 @@ rdf_sel = (
 
 print("Counting number of passed events...")
 
-# n_total = rdf.Count().GetValue()
-# n_pass = rdf_sel.Count().GetValue()
+n_total = rdf.Count().GetValue()
+n_pass = rdf_sel.Count().GetValue()
 
-# print("Total events:", n_total)
-# print("Passed selection:", n_pass)
+print("Total events:", n_total)
+print("Passed selection:", n_pass)
+
 
 out_file = "selected_hits.root"
 out_tree = "HitCoords"  # name of the output tree
@@ -82,7 +72,6 @@ rdf_sel.Snapshot(out_tree, out_file, cols_to_save)
 
 print("Done. File saved.")
 
-"""
 event_index = rdf_sel.Take[rdf_sel.GetColumnType("entry")]("entry").GetValue()
 coords_x = rdf_sel.Take[rdf_sel.GetColumnType("x_hits")]("x_hits").GetValue()
 coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
@@ -94,8 +83,7 @@ for i in range(5):
     print("-" * 30)
 
 """
-
-"""
+#uncomment this if you want to export the entries for inspection use
 with open("passed_event_index.txt","w") as file:
     for entry in entries:
         file.write(f"{entry}\n")
