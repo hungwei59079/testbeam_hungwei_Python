@@ -31,7 +31,7 @@ rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
 
 # Comment the previous line and uncomment the following lines if you just want to test one file.
 # filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
-#rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
+# rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
 
 rdf_sel = (
     rdf.Filter(
@@ -72,6 +72,7 @@ rdf_sel.Snapshot(out_tree, out_file, cols_to_save)
 
 print("Done. File saved.")
 
+"""
 event_index = rdf_sel.Take[rdf_sel.GetColumnType("entry")]("entry").GetValue()
 coords_x = rdf_sel.Take[rdf_sel.GetColumnType("x_hits")]("x_hits").GetValue()
 coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
@@ -82,7 +83,7 @@ for i in range(5):
         print(f"Layer {j}; X = {coords_x[i][j-1]}, Y = {coords_y[i][j-1]}")
     print("-" * 30)
 
-"""
+
 #uncomment this if you want to export the entries for inspection use
 with open("passed_event_index.txt","w") as file:
     for entry in entries:
