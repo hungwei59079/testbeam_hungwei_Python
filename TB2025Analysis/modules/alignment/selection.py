@@ -93,8 +93,8 @@ rdf_sel_5 = (
 )
 
 
-n4_pass = rdf_sel_4.Count().GetValue()
-print("Passed adjacent hit check:", n4_pass)
+n5_pass = rdf_sel_5.Count().GetValue()
+print("Passed adjacent hit check:", n5_pass)
 
 out_file = "selected_hits.root"
 out_tree = "HitCoords"  # name of the output tree
