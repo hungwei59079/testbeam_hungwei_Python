@@ -1,0 +1,25 @@
+
+EMshowerSelection:
+   nHits_min: 2
+
+EnergyStudy:
+   Nominal2ActualBeamE:
+      20: 20.0
+      50: 49.97
+      80: 79.91
+      100: 99.81
+      150: 149.16
+      300: 287.65
+   G4simInputs:
+      20: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SimulationSepTestBeam2025/StandaloneG4/totalE_141_20GeV.root
+      70: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SimulationSepTestBeam2025/StandaloneG4/totalE_141_70GeV.root
+      150: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SimulationSepTestBeam2025/StandaloneG4/totalE_141_150GeV.root
+      200: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SimulationSepTestBeam2025/StandaloneG4/totalE_141_200GeV.root
+      300: /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SimulationSepTestBeam2025/StandaloneG4/totalE_141_300GeV.root
+
+TWAnalysis:
+   besttrigtime: 117
+   trigtimeRange: 1
+   #besttrigtime: 17
+   #trigtimeRange: 2
+
