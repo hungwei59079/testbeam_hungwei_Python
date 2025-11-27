@@ -1,0 +1,19 @@
+{
+   "samples": {
+      "Data200GeV": {
+          "trees": [
+              "Events"
+          ],
+          "files": [
+	      "root://eosuser.cern.ch//eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025//Run111526/78bff11c-a21b-11f0-ac01-04d9f5f94829/v2/NANO_1.root",
+	      "root://eosuser.cern.ch//eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025//Run111526/78bff11c-a21b-11f0-ac01-04d9f5f94829/v2/NANO_2.root",
+	      "root://eosuser.cern.ch//eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025//Run111526/78bff11c-a21b-11f0-ac01-04d9f5f94829/v2/NANO_3.root",
+	      "root://eosuser.cern.ch//eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025//Run111526/78bff11c-a21b-11f0-ac01-04d9f5f94829/v2/NANO_4.root"
+          ],
+          "metadata": {
+              "NominalEnergy": 200,
+              "isMC": 0
+         }
+      }
+   }
+}
