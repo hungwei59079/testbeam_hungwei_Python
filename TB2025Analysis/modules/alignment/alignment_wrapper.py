@@ -1,11 +1,16 @@
+import os
+
+
 def run(rdf, **kwargs):
-    print("[AlignmentTest] run() called")
-    print("Keys received:", list(kwargs.keys()))
-    print("NominalEnergies:", kwargs.get("NominalEnergies"))
-    print("areMC:", kwargs.get("areMC"))
-    print("Output directory:", kwargs.get("outdir"))
+    NominalEnergies = kwargs.get("NominalEnergies")
+    areMC = kwargs.get("areMC")
+    outdir = kwargs.get("outdir")
+    outdir = os.path.normpath(outdir)
+    outdir = os.path.abspath(outdir)
+
+    print(outdir)
 
     counts = rdf.Count().GetValue()
     print(f"Number of events: {counts}")
-    
+
     return rdf
