@@ -4,6 +4,8 @@ test.png
 tutorial.png
 hungwei.cc
 logs
+.ipynb_checkpoints/
+__pycache__
 
 # Alignment outputs:
 *.so
