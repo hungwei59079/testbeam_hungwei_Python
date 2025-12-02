@@ -1,6 +1,6 @@
 import os
 
-from selection import selection
+from .selection import selection
 
 
 def run(rdf, **kwargs):

@@ -6,10 +6,13 @@ import ROOT
 
 def selection(rdf, out_dir):
     # Step 1: Load the selection functions and declared objects from the helper script.
-    ROOT.gInterpreter.ProcessLine(".L selection.C+")
+    this_dir = os.path.dirname(__file__)
+    sel_c_path = os.path.abspath(os.path.join(this_dir, "selection.C"))
+    ROOT.gInterpreter.ProcessLine(f'.L "{sel_c_path}+"')
 
     # Step 2: Load coordinates and initialize the uninitialize std::map
-    with open("digi_coordinates.json") as f:
+    json_path = os.path.abspath(os.path.join(this_dir, "digi_coordinates.json"))
+    with open(json_path, "r") as f:
         digi_coords = json.load(f)
 
     for ch, (x, y) in digi_coords.items():
