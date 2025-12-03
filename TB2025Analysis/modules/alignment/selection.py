@@ -3,13 +3,22 @@ import os
 
 import ROOT
 
-
 def selection(rdf, out_dir):
-    # Step 1: Load the selection functions and declared objects from the helper script.
     this_dir = os.path.dirname(__file__)
-    sel_c_path = os.path.abspath(os.path.join(this_dir, "selection.C"))
-    ROOT.gInterpreter.ProcessLine(f'.L "{sel_c_path}+"')
+    
+    # Add this directory to ROOT's include search path
+    ROOT.gSystem.AddIncludePath(f"-I{this_dir}")
 
+    # Change ROOT's working directory to the macro directory
+    ROOT.gSystem.ChangeDirectory(this_dir)
+
+    # Build a ROOT-safe absolute path
+    # sel_c_path = os.path.abspath(os.path.join(this_dir, "selection.C"))
+    # print("Loading:", sel_c_path)
+
+    # Load and compile the macro
+    # ROOT.gInterpreter.ProcessLine(f'.L "{sel_c_path}"++')
+    ROOT.gInterpreter.ProcessLine(f'.L selection.C++')
     # Step 2: Load coordinates and initialize the uninitialize std::map
     json_path = os.path.abspath(os.path.join(this_dir, "digi_coordinates.json"))
     with open(json_path, "r") as f:
@@ -104,11 +113,11 @@ if __name__ == "__main__":
 
     print(f"found {len(found_file_path)} files. Processing......")
 
-    rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
+    # rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
 
     # Comment the previous line and uncomment the following lines if you just want to test one file.
-    # filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
-    # rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
+    filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
+    rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
 
     selection(rdf, outdir)
 

@@ -27,11 +27,11 @@ for dirpath, _, filenames in os.walk(search_base):
 print(f"found {len(found_file_path)} files. Processing......")
 
 
-rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
+# rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
 
 # Comment the previous line and uncomment the following lines if you just want to test one file.
-# filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
-# rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
+filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
+rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
 
 n_total = rdf.Count().GetValue()
 print("Total events:", n_total)

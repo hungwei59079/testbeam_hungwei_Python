@@ -12,6 +12,8 @@ def run(rdf, **kwargs):
 
     # counts = rdf.Count().GetValue()
     # print(f"Number of events: {counts}")
+    # os.chdir(os.path.dirname(__file__))
+
     selection(rdf, outdir)
 
     return rdf
