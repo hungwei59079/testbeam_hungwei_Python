@@ -80,7 +80,8 @@ for i in range(end_entry - start_entry):
     if not good_entry:
         os.makedirs(f"hitplot_event_{event_number}_bad", exist_ok=True)
         continue
-
+    
+    selected_channels = np.array(selected_channels)
     print(f"Inspecting event {event_number}, trigger time: {trigtime}")
     print(f"Layers: {layers}")
     print(f"Channels: {selected_channels}")
