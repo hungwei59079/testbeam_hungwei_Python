@@ -1,6 +1,4 @@
 import argparse
-
-# import logging
 import os
 import shutil
 import subprocess
@@ -9,15 +7,6 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import uproot
-
-# --- Logger setup ---
-# logging.basicConfig(
-#    filename="hit_inspector.log",
-#     filemode="w",
-#     level=logging.DEBUG,
-#     format="[%(asctime)s] %(levelname)s: %(message)s",
-# )
-# logger = logging.getLogger(__name__)
 
 # --- CLI setup ---
 parser = argparse.ArgumentParser()
@@ -44,7 +33,14 @@ with uproot.open(args.filename) as file:
         raise IndexError(f"Event numbers out of range (max = {tree.num_entries - 1})")
 
     arrays = tree.arrays(
-        ["HGCHit_layer", "HGCHit_energy", "HGCMetaData_trigTime", "HGCDigi_channel"],
+        [
+            "HGCHit_layer",
+            "HGCHit_energy",
+            "HGCMetaData_trigTime",
+            "HGCDigi_channel",
+            "HGCDenseIndex_digiIdx",
+            "HGCHit_denseIndex",
+        ],
         entry_start=start_entry,
         entry_stop=end_entry,
     )
@@ -58,24 +54,37 @@ for i in range(end_entry - start_entry):
     layers = arrays["HGCHit_layer"][i]
     energies = arrays["HGCHit_energy"][i]
     trigtime = arrays["HGCMetaData_trigTime"][i]
-    # logger.info(f"Inspecting event {event_number}, trigger time: {trigtime}")
-    # logger.debug(f"Layers: {layers}")
-    # logger.debug(f"Channels: {channels}")
-    # logger.debug(f"Energies: {energies}")
-    print(f"Inspecting event {event_number}, trigger time: {trigtime}")
-    print(f"Layers: {layers}")
-    print(f"Channels: {channels}")
-    print(f"Energies: {energies}")
+    DenseIndex = arrays["HGCHit_denseIndex"][i]
+    Dense_to_Digi = arrays["HGCDenseIndex_digiIdx"][i]
+    good_entry = True
 
-    if len(channels) != len(layers) or len(channels) != len(energies):
+    if len(DenseIndex) != len(layers) or len(layers) != len(energies):
         os.makedirs(f"hitplot_event_{event_number}_bad", exist_ok=True)
-        # logger.info(
-        #   f"Warning: Array size mismatch detected in event {event_number}. Skipping with an empty directory created."
-        # )
         print(
-            f"Warning: Array size mismatch detected in event {event_number}. Skipping with an empty directory created."
+            f"Warning: Array size mismatch between DenseIndex, layers, and energies detected in event {event_number}. Skipping with an empty directory created."
         )
         continue
+
+    selected_channels = []
+    for dense_id in DenseIndex:
+        digi_index = Dense_to_Digi[dense_id]
+        if digi_index < 0 or digi_index >= len(channels):
+            print(
+                f"Warning: Digi_index out of range in event {event_number}. Skipping."
+            )
+            good_entry = False
+            continue
+        else:
+            selected_channels.append(channels[digi_index])
+
+    if not good_entry:
+        os.makedirs(f"hitplot_event_{event_number}_bad", exist_ok=True)
+        continue
+
+    print(f"Inspecting event {event_number}, trigger time: {trigtime}")
+    print(f"Layers: {layers}")
+    print(f"Channels: {selected_channels}")
+    print(f"Energies: {energies}")
 
     os.makedirs(f"hitplot_event_{event_number}/values", exist_ok=True)
     for layer in range(1, 11):
@@ -83,7 +92,7 @@ for i in range(end_entry - start_entry):
         values = np.zeros(222)
         mask = layers == layer
         if np.any(mask):
-            ch = channels[mask]
+            ch = selected_channels[mask]
             en = energies[mask]
             values[ch] = en
 
@@ -95,12 +104,10 @@ for i in range(end_entry - start_entry):
         command = (
             f'root -l -b -q \'../../hexaplot_helper.C("{values_file}", "{name}")\''
         )
-        # logger.info(f"Executing command: {command}")
         print(f"Executing command: {command}")
         subprocess.call(command, shell=True)
 
-    # logger.info("Event processing complete. Merging figures......")
-    print(f"Event processing complete. Merging figures......")
+    print("Event processing complete. Merging figures......")
     fig, axes = plt.subplots(2, 5, figsize=(15, 6))  # 2 rows × 5 columns
     axes = axes.flatten()
     for layer in range(1, 11):
