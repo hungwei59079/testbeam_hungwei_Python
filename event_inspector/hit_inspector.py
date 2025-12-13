@@ -66,11 +66,11 @@ for i in range(end_entry - start_entry):
         continue
 
     selected_channels = []
-    for dense_id in DenseIndex:
+    for i, dense_id in enumerate(DenseIndex):
         digi_index = Dense_to_Digi[dense_id]
         if digi_index < 0 or digi_index >= len(channels):
             print(
-                f"Warning: Digi_index out of range in event {event_number}. Skipping."
+                f"Warning: Dense index #{i} {dense_id} mapped to the Digi_index {digi_index}, which is out of range in event {event_number}. Skipping."
             )
             good_entry = False
             continue
