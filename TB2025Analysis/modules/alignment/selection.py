@@ -3,23 +3,16 @@ import os
 
 import ROOT
 
+
 def selection(rdf, out_dir):
     this_dir = os.path.dirname(__file__)
-    
+
     # Add this directory to ROOT's include search path
     ROOT.gSystem.AddIncludePath(f"-I{this_dir}")
-
-    # Change ROOT's working directory to the macro directory
     ROOT.gSystem.ChangeDirectory(this_dir)
+    ROOT.gInterpreter.ProcessLine(".L selection.C++")
 
-    # Build a ROOT-safe absolute path
-    # sel_c_path = os.path.abspath(os.path.join(this_dir, "selection.C"))
-    # print("Loading:", sel_c_path)
-
-    # Load and compile the macro
-    # ROOT.gInterpreter.ProcessLine(f'.L "{sel_c_path}"++')
-    ROOT.gInterpreter.ProcessLine(f'.L selection.C++')
-    # Step 2: Load coordinates and initialize the uninitialize std::map
+    # Step 2: Load coordinates and initialize the std::map
     json_path = os.path.abspath(os.path.join(this_dir, "digi_coordinates.json"))
     with open(json_path, "r") as f:
         digi_coords = json.load(f)
@@ -29,7 +22,6 @@ def selection(rdf, out_dir):
 
     n_total = rdf.Count().GetValue()
     print("Total events:", n_total)
-
     print("Start event selection.")
 
     """
@@ -58,9 +50,10 @@ def selection(rdf, out_dir):
     n1_pass = rdf_sel_1.Count().GetValue()
     print("Passed TrigTime selection:", n1_pass)
 
-    rdf_sel_2 = rdf_sel_1.Filter(
-        "ArrayMatchCheck(HGCHit_layer, HGCDigi_channel)", "Layer/channel array match"
-    )
+    rdf_sel_2 = rdf_sel_1.Define(
+        "digi_index", "Take(HGCDenseIndex_digiIdx, HGCHit_denseIndex)"
+    ).Define("HGCHit_channel", "Take(HGCDigi_channel, digi_index)")
+
     n2_pass = rdf_sel_2.Count().GetValue()
     print("Passed array match check:", n2_pass)
 
