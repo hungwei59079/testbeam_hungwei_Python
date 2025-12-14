@@ -50,33 +50,30 @@ def selection(rdf, out_dir):
     n1_pass = rdf_sel_1.Count().GetValue()
     print("Passed TrigTime selection:", n1_pass)
 
-    rdf_sel_2 = rdf_sel_1.Define(
-        "digi_index", "Take(HGCDenseIndex_digiIdx, HGCHit_denseIndex)"
-    ).Define("HGCHit_channel", "Take(HGCDigi_channel, digi_index)")
-
+    rdf_sel_2 = rdf_sel_1.Filter(
+        "UniqueLayersCheck(HGCHit_layer, HGCHit_channel)", "Unique layers >= 5"
+    )
     n2_pass = rdf_sel_2.Count().GetValue()
-    print("Passed array match check:", n2_pass)
+    print("Passed unique layers check:", n2_pass)
 
     rdf_sel_3 = rdf_sel_2.Filter(
-        "UniqueLayersCheck(HGCHit_layer)", "Unique layers >= 5"
-    )
-    n3_pass = rdf_sel_3.Count().GetValue()
-    print("Passed unique layers check:", n3_pass)
-
-    rdf_sel_4 = rdf_sel_3.Filter(
         "MaxHitsPerLayerCheck(HGCHit_layer)", "No layer with >= 4 hits"
     )
-    n4_pass = rdf_sel_4.Count().GetValue()
-    print("Passed hit<4 check:", n4_pass)
+    n3_pass = rdf_sel_3.Count().GetValue()
+    print("Passed hit<4 check:", n3_pass)
 
-    rdf_sel_5 = (
-        rdf_sel_4.Filter("AdjacentHitsCheck(HGCHit_layer, HGCDigi_channel)")
-        .Define("x_hits", "WeightedX(HGCHit_layer, HGCDigi_channel, HGCHit_energy)")
-        .Define("y_hits", "WeightedY(HGCHit_layer, HGCDigi_channel, HGCHit_energy)")
+    rdf_sel_4 = (
+        rdf_sel_3.Filter("AdjacentHitsCheck(HGCHit_layer, HGCHit_channel)")
+        .Define("WX", "WeightedX(HGCHit_layer, HGCHit_channel, HGCHit_energy)")
+        .Define("x_hits", "WX.first")
+        .Define("sigma_x_hits", "WX.second")
+        .Define("WY", "WeightedY(HGCHit_layer, HGCHit_channel, HGCHit_energy)")
+        .Define("y_hits", "WY.first")
+        .Define("sigma_y_hits", "WY.second")
     )
 
-    n5_pass = rdf_sel_5.Count().GetValue()
-    print("Passed adjacent hit check:", n5_pass)
+    n4_pass = rdf_sel_4.Count().GetValue()
+    print("Passed adjacent hit check:", n4_pass)
 
     out_file = os.path.join(out_dir, "selected_hits.root")
     out_tree = "HitCoords"  # name of the output tree
@@ -85,9 +82,11 @@ def selection(rdf, out_dir):
 
     cols_to_save = ROOT.std.vector("string")()
     cols_to_save.push_back("x_hits")
+    cols_to_save.push_back("sigma_x_hits")
     cols_to_save.push_back("y_hits")
+    cols_to_save.push_back("sigma_y_hits")
 
-    rdf_sel_5.Snapshot(out_tree, out_file, cols_to_save)
+    rdf_sel_4.Snapshot(out_tree, out_file, cols_to_save)
 
     print("Done. File saved.")
 
