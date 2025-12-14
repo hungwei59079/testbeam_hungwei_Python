@@ -4,7 +4,7 @@ import os
 import ROOT
 
 
-def selection(rdf, out_dir):
+def selection(rdf, out_dir, return_index = False):
     this_dir = os.path.dirname(__file__)
 
     # Add this directory to ROOT's include search path
@@ -20,6 +20,7 @@ def selection(rdf, out_dir):
     for ch, (x, y) in digi_coords.items():
         ROOT.digiCoordMap[int(ch)] = ROOT.std.pair("float", "float")(x, y)
 
+    rdf = rdf.Define("entry","rdfentry_")
     n_total = rdf.Count().GetValue()
     print("Total events:", n_total)
     print("Start event selection.")
@@ -57,7 +58,7 @@ def selection(rdf, out_dir):
     print("Passed unique layers check:", n2_pass)
 
     rdf_sel_3 = rdf_sel_2.Filter(
-        "MaxHitsPerLayerCheck(HGCHit_layer)", "No layer with >= 4 hits"
+        "MaxHitsPerLayerCheck(HGCHit_layer, HGCHit_channel)", "No layer with >= 4 hits"
     )
     n3_pass = rdf_sel_3.Count().GetValue()
     print("Passed hit<4 check:", n3_pass)
@@ -89,10 +90,15 @@ def selection(rdf, out_dir):
     rdf_sel_4.Snapshot(out_tree, out_file, cols_to_save)
 
     print("Done. File saved.")
+    if return_index:
+        event_index = rdf_sel_4.Take[rdf_sel_4.GetColumnType("entry")]("entry").GetValue()
+        return rdf_sel_4, event_index
+    
+    return rdf_sel_4
 
 
 if __name__ == "__main__":
-    search_base = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/"
+    search_base = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/v4/" 
     os.makedirs("./selection_output", exist_ok=True)
     outdir = os.path.join(os.getcwd(), "selection_output")
 
@@ -108,26 +114,24 @@ if __name__ == "__main__":
     # rdf = ROOT.RDataFrame("Events", found_file_path).Define("entry", "rdfentry_")
 
     # Comment the previous line and uncomment the following lines if you just want to test one file.
-    filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/prompt/NANO_112149_999.root"
+    filename = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112149/65ed5258-ab32-11f0-a4b8-04d9f5f94829/v4/NANO_999.root" 
     rdf = ROOT.RDataFrame("Events", filename).Define("entry", "rdfentry_")
 
-    selection(rdf, outdir)
+    rdf_sel = selection(rdf, outdir)
 
 
-"""
-event_index = rdf_sel.Take[rdf_sel.GetColumnType("entry")]("entry").GetValue()
-coords_x = rdf_sel.Take[rdf_sel.GetColumnType("x_hits")]("x_hits").GetValue()
-coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
+    event_index = rdf_sel.Take[rdf_sel.GetColumnType("entry")]("entry").GetValue()
+    coords_x = rdf_sel.Take[rdf_sel.GetColumnType("x_hits")]("x_hits").GetValue()
+    coords_y = rdf_sel.Take[rdf_sel.GetColumnType("y_hits")]("y_hits").GetValue()
 
-for i in range(5):
-    print(f"Event {event_index[i]}:")
-    for j in range(1, 11):
-        print(f"Layer {j}; X = {coords_x[i][j-1]}, Y = {coords_y[i][j-1]}")
-    print("-" * 30)
+    for i in range(5):
+        print(f"Event {event_index[i]}:")
+        for j in range(1, 11):
+            print(f"Layer {j}; X = {coords_x[i][j-1]}, Y = {coords_y[i][j-1]}")
+        print("-" * 30)
 
 
-#uncomment this if you want to export the entries for inspection use
-with open("passed_event_index.txt","w") as file:
-    for entry in entries:
-        file.write(f"{entry}\n")
-"""
+    #uncomment this if you want to export the entries for inspection use
+    with open("passed_event_index.txt","w") as file:
+        for entry in entries:
+            file.write(f"{entry}\n")

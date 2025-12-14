@@ -87,12 +87,12 @@ bool AdjacentHitsCheck(const RVec<int> &layers,
 
     if (count <= 3) {
       std::vector<unsigned short> chs;
-      for (size_t i = 0; i < layers.size(); i++)
+      for (size_t i = 0; i < layers.size(); i++){
         if (channels[i] == (unsigned short)-1)
           continue;
-
-      if (layers[i] == layer)
+        if (layers[i] == layer)
         chs.push_back(channels[i]);
+      }
 
       for (size_t i = 0; i < chs.size(); i++) {
         for (size_t j = i + 1; j < chs.size(); j++) {
@@ -119,7 +119,7 @@ WeightedX(const RVec<int> &layers, const RVec<unsigned short> &channels,
           const RVec<float> &adcs) {
   constexpr int nLayers = 10;
   constexpr float pitch = 1.25f;
-  constexpr float singleHitSigma = pitch / std::sqrt(12.0f);
+  const float singleHitSigma = pitch / std::sqrt(12.0f);
 
   RVec<float> x_out(nLayers, NAN);
   RVec<float> sigma_x_out(nLayers, NAN);
@@ -178,7 +178,7 @@ WeightedY(const RVec<int> &layers, const RVec<unsigned short> &channels,
           const RVec<float> &adcs) {
   constexpr int nLayers = 10;
   constexpr float pitch = 1.25f;
-  constexpr float singleHitSigma = pitch / std::sqrt(12.0f);
+  const float singleHitSigma = pitch / std::sqrt(12.0f);
 
   RVec<float> y_out(nLayers, NAN);
   RVec<float> sigma_y_out(nLayers, NAN);
@@ -217,10 +217,6 @@ WeightedY(const RVec<int> &layers, const RVec<unsigned short> &channels,
       var = 0.0f;
 
     y_out[idx] = mean;
-
-    // Geometry sign convention
-    if (L == 2 || L == 4 || L == 6 || L == 8)
-      y_out[idx] *= -1.0f;
 
     // Resolution proxy
     if (var > 0.0f)
