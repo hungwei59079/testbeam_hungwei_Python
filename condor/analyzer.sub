@@ -1,0 +1,15 @@
+universe = vanilla
+executable = run_analyzer.sh
++JobFlavour = "workday"
+# Logs
+output = analyzer.out
+error  = analyzer.err
+log    = analyzer.log
+
+# No arguments (single job)
+arguments =
+
+# We run entirely on AFS
+should_transfer_files = NO
+
+queue

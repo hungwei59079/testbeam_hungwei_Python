@@ -1,0 +1,24 @@
+[Mon Dec 15 01:11:22 PM CET 2025] Starting on b9g18p9878.cern.ch
+Extracting layer info from /eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025//Run112147/4ec545d8-a3d8-11f0-a638-04d9f5f94829/v4/NANO_1.root
+Layer	Module name	Readout sequence
+1	ML_F3WC_IH0197	0
+2	ML_F3WC_IH0196	1
+3	ML_F3WC_IH0198	2
+4	ML_F3WC_IH0190	3
+5	ML_F3WC_IH0192	4
+6	ML_F3WC_IH0191	5
+7	ML_F3WC_IH0194	8
+8	ML_F3WC_IH0182	6
+9	ML_F3WC_IH0180	7
+10	ML_F3WC_IH0199	9
+Loading alignment
+/afs/cern.ch/user/h/hungwei/testbeam_hungwei_Python/TB2025Analysis/alignment
+Total events: 7552788
+Start event selection.
+Passed TrigTime selection: 945164
+Passed unique layers check: 920647
+Passed hit<4 check: 819030
+Passed adjacent hit check: 645396
+Selection complete. Saving selected coordinates to /afs/cern.ch/user/h/hungwei/testbeam_hungwei_Python/TB2025Analysis/alignment/selected_hits.root...
+Done. File saved.
+[Mon Dec 15 13:27:57 CET 2025] Done.

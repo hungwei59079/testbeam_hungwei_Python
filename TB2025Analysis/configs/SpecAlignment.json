@@ -1,15 +1,5 @@
 {
     "samples": {
-        "Run112146": {
-            "trees": [
-                "Events"
-            ],
-            "files": [],
-            "metadata": {
-                "NominalEnergy": 200,
-                "isMC": 0
-            }
-        },
         "Run112147": {
             "trees": [
                 "Events"
