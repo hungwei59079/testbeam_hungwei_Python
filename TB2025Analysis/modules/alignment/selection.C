@@ -12,23 +12,44 @@ std::map<int, std::pair<float, float>> digiCoordMap;
 // ------------------------------------------------------------
 // 1. Unique layer check
 // ------------------------------------------------------------
-bool UniqueLayersCheck(const RVec<int> &layers) {
-  std::set<int> uniq(layers.begin(), layers.end());
+bool UniqueLayersCheck(const RVec<int> &layers,
+                       const RVec<unsigned short> &channels) {
+  std::set<int> uniq;
 
-  // Remove zero - which represents disconnected channels - if present
-  uniq.erase(0);
+  const size_t n = layers.size();
 
-  // Check if number of NONZERO unique elements is at least 5
+  // Defensive: ensure parallel vectors
+  if (channels.size() != n)
+    return false;
+
+  for (size_t i = 0; i < n; ++i) {
+    // Skip hits with invalid digi/channel
+    if (channels[i] == (unsigned short)-1)
+      continue;
+
+    // Skip disconnected layer
+    if (layers[i] == 0)
+      continue;
+
+    uniq.insert(layers[i]);
+  }
+
   return uniq.size() >= 5;
 }
 
 // ------------------------------------------------------------
 // 2. Max hits per layer (< 4)
 // ------------------------------------------------------------
-bool MaxHitsPerLayerCheck(const RVec<int> &layers) {
+bool MaxHitsPerLayerCheck(const RVec<int> &layers,
+                          const RVec<unsigned short> &channels) {
   std::map<int, int> freq;
-  for (int l : layers)
-    freq[l]++;
+  for (size_t i = 0; i < layers.size(); ++i) {
+    if (channels[i] == (unsigned short)-1)
+      continue;
+    if (layers[i] == 0)
+      continue;
+    freq[layers[i]]++;
+  }
   for (auto &kv : freq)
     if (kv.second >= 4)
       return false;
@@ -45,11 +66,17 @@ bool ArrayMatchCheck(const RVec<int> &layers, const RVec<int> &channels) {
 // ------------------------------------------------------------
 // 4. Adjacent hit distance check
 // ------------------------------------------------------------
-bool AdjacentHitsCheck(const RVec<int> &layers, const RVec<int> &channels,
+bool AdjacentHitsCheck(const RVec<int> &layers,
+                       const RVec<unsigned short> &channels,
                        double maxDist = 1.7) {
   std::map<int, int> freq;
-  for (int l : layers)
-    freq[l]++;
+  for (size_t i = 0; i < layers.size(); ++i) {
+    if (channels[i] == (unsigned short)-1)
+      continue;
+    if (layers[i] == 0)
+      continue;
+    freq[layers[i]]++;
+  }
 
   for (auto &kv : freq) {
     int layer = kv.first;
@@ -59,10 +86,13 @@ bool AdjacentHitsCheck(const RVec<int> &layers, const RVec<int> &channels,
       continue;
 
     if (count <= 3) {
-      std::vector<int> chs;
-      for (size_t i = 0; i < layers.size(); i++)
+      std::vector<unsigned short> chs;
+      for (size_t i = 0; i < layers.size(); i++){
+        if (channels[i] == (unsigned short)-1)
+          continue;
         if (layers[i] == layer)
-          chs.push_back(channels[i]);
+        chs.push_back(channels[i]);
+      }
 
       for (size_t i = 0; i < chs.size(); i++) {
         for (size_t j = i + 1; j < chs.size(); j++) {
@@ -84,16 +114,27 @@ bool AdjacentHitsCheck(const RVec<int> &layers, const RVec<int> &channels,
   return true;
 }
 
-ROOT::RVec<float> WeightedX(const ROOT::RVec<int> &layers,
-                            const ROOT::RVec<int> &channels,
-                            const ROOT::RVec<float> &adcs) {
-  ROOT::RVec<float> x_out(10, NAN);
+std::pair<RVec<float>, RVec<float>>
+WeightedX(const RVec<int> &layers, const RVec<unsigned short> &channels,
+          const RVec<float> &adcs) {
+  constexpr int nLayers = 10;
+  constexpr float pitch = 1.25f;
+  const float singleHitSigma = pitch / std::sqrt(12.0f);
 
-  std::unordered_map<int, float> sumA, sumAx;
+  RVec<float> x_out(nLayers, NAN);
+  RVec<float> sigma_x_out(nLayers, NAN);
 
-  for (size_t i = 0; i < layers.size(); i++) {
-    int L = layers[i]; // 1..10
-    int ch = channels[i];
+  std::unordered_map<int, float> sumA;
+  std::unordered_map<int, float> sumAx;
+  std::unordered_map<int, float> sumAx2;
+
+  // --- Accumulate per-layer quantities ---
+  for (size_t i = 0; i < layers.size(); ++i) {
+    unsigned short ch = channels[i];
+    if (ch == (unsigned short)-1)
+      continue;
+
+    int L = layers[i]; // expected 1..10
     float A = adcs[i];
 
     auto coord = digiCoordMap[ch];
@@ -101,30 +142,58 @@ ROOT::RVec<float> WeightedX(const ROOT::RVec<int> &layers,
 
     sumA[L] += A;
     sumAx[L] += A * x;
+    sumAx2[L] += A * x * x;
   }
 
-  for (int L = 1; L <= 10; L++) {
-    if (sumA.count(L)) {
-      x_out[L - 1] = sumAx[L] / sumA[L];
-    }
-    if (L == 2 || L == 4 || L == 6 || L == 8) {
-      x_out[L - 1] *= -1;
-    }
+  // --- Compute centroid and RMS per layer ---
+  for (int L = 1; L <= nLayers; ++L) {
+    if (!sumA.count(L))
+      continue;
+
+    const int idx = L - 1;
+    const float mean = sumAx[L] / sumA[L];
+
+    float var = sumAx2[L] / sumA[L] - mean * mean;
+    if (var < 0.0f) // numerical safety
+      var = 0.0f;
+
+    x_out[idx] = mean;
+
+    // Geometry sign convention
+    if (L == 2 || L == 4 || L == 6 || L == 8)
+      x_out[idx] *= -1.0f;
+
+    // Resolution proxy
+    if (var > 0.0f)
+      sigma_x_out[idx] = std::sqrt(var);
+    else
+      sigma_x_out[idx] = singleHitSigma;
   }
 
-  return x_out;
+  return {x_out, sigma_x_out};
 }
 
-ROOT::RVec<float> WeightedY(const ROOT::RVec<int> &layers,
-                            const ROOT::RVec<int> &channels,
-                            const ROOT::RVec<float> &adcs) {
-  ROOT::RVec<float> y_out(10, NAN);
+std::pair<RVec<float>, RVec<float>>
+WeightedY(const RVec<int> &layers, const RVec<unsigned short> &channels,
+          const RVec<float> &adcs) {
+  constexpr int nLayers = 10;
+  constexpr float pitch = 1.25f;
+  const float singleHitSigma = pitch / std::sqrt(12.0f);
 
-  std::unordered_map<int, float> sumA, sumAy;
+  RVec<float> y_out(nLayers, NAN);
+  RVec<float> sigma_y_out(nLayers, NAN);
 
-  for (size_t i = 0; i < layers.size(); i++) {
-    int L = layers[i];
-    int ch = channels[i];
+  std::unordered_map<int, float> sumA;
+  std::unordered_map<int, float> sumAy;
+  std::unordered_map<int, float> sumAy2;
+
+  // --- Accumulate per-layer quantities ---
+  for (size_t i = 0; i < layers.size(); ++i) {
+    unsigned short ch = channels[i];
+    if (ch == (unsigned short)-1)
+      continue;
+
+    int L = layers[i]; // expected 1..10
     float A = adcs[i];
 
     auto coord = digiCoordMap[ch];
@@ -132,13 +201,29 @@ ROOT::RVec<float> WeightedY(const ROOT::RVec<int> &layers,
 
     sumA[L] += A;
     sumAy[L] += A * y;
+    sumAy2[L] += A * y * y;
   }
 
-  for (int L = 1; L <= 10; L++) {
-    if (sumA.count(L)) {
-      y_out[L - 1] = sumAy[L] / sumA[L];
-    }
+  // --- Compute centroid and RMS per layer ---
+  for (int L = 1; L <= nLayers; ++L) {
+    if (!sumA.count(L))
+      continue;
+
+    const int idx = L - 1;
+    const float mean = sumAy[L] / sumA[L];
+
+    float var = sumAy2[L] / sumA[L] - mean * mean;
+    if (var < 0.0f) // numerical safety
+      var = 0.0f;
+
+    y_out[idx] = mean;
+
+    // Resolution proxy
+    if (var > 0.0f)
+      sigma_y_out[idx] = std::sqrt(var);
+    else
+      sigma_y_out[idx] = singleHitSigma;
   }
 
-  return y_out;
+  return {y_out, sigma_y_out};
 }

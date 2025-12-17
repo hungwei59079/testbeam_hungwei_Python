@@ -6,8 +6,9 @@ runregistryfile = "/eos/cms/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/
 
 # muon runs
 Runs = [
-    112146, 112147, 112148, 112149
+   112146, 112147, 112148, 112149
 ]
+# Runs = [112149]
 
 runregistry = pd.read_excel(runregistryfile, "Sheet1")
 runregistry = runregistry[runregistry.Run.isin(Runs)]
@@ -20,6 +21,7 @@ for _, row in runregistry.iterrows():
     outdir = str(row["Output"])
 
     fixed_d = outdir.replace("/v1", "/v4")
+#    fixed_d = outdir.replace("/v1","/prompt")
     sample_key = f"Run{run}"
 
     sample = specs["samples"].setdefault(

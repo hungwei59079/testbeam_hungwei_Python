@@ -14,6 +14,12 @@ def run(rdf, **kwargs):
     # print(f"Number of events: {counts}")
     # os.chdir(os.path.dirname(__file__))
 
-    selection(rdf, outdir)
+    rdf_sel = selection(rdf, outdir)
 
+    """
+    rdf_sel, idxs = selection(rdf, outdir, return_index = True)
+    with open("passed_event_indices.txt","w") as file:
+        for idx in idxs:
+            file.write(f"{idx}\n") 
+    """
     return rdf
