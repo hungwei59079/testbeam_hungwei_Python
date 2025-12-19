@@ -2,9 +2,9 @@ universe = vanilla
 executable = run_analyzer.sh
 +JobFlavour = "workday"
 # Logs
-output = analyzer.out
-error  = analyzer.err
-log    = analyzer.log
+output = logs/analyzer.out
+error  = logs/analyzer.err
+log    = logs/analyzer.log
 
 # No arguments (single job)
 arguments =
