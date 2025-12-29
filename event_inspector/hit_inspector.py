@@ -40,6 +40,8 @@ with uproot.open(args.filename) as file:
             "HGCDigi_channel",
             "HGCDenseIndex_digiIdx",
             "HGCHit_denseIndex",
+            "HGCHit_x"
+            "HGCHit_y"
         ],
         entry_start=start_entry,
         entry_stop=end_entry,
@@ -56,6 +58,8 @@ for i in range(end_entry - start_entry):
     trigtime = arrays["HGCMetaData_trigTime"][i]
     DenseIndex = arrays["HGCHit_denseIndex"][i]
     Dense_to_Digi = arrays["HGCDenseIndex_digiIdx"][i]
+    Nano_x = arrays["HGCHit_x"][i]
+    Nano_y = arrays["HGCHit_y"][i]
     good_entry = True
 
     if len(DenseIndex) != len(layers) or len(layers) != len(energies):
@@ -95,6 +99,8 @@ for i in range(end_entry - start_entry):
         if np.any(mask):
             ch = selected_channels[mask]
             en = energies[mask]
+            x = Nano_x[mask]
+            y = Nano_y[mask]
             values[ch] = en
 
         # Save temporary array
@@ -107,6 +113,17 @@ for i in range(end_entry - start_entry):
         )
         print(f"Executing command: {command}")
         subprocess.call(command, shell=True)
+
+        #Create plot with Nano x and y
+        plt.figure(figsize=(6,6))
+        plt.scatter(Nano_x[mask], Nano_y[mask], c=energies[mask], s=50, cmap='viridis')
+        plt.colorbar(label='Energy')
+        plt.title(f'Event {event_number} Layer {layer} Hit Map')
+        plt.xlabel('Nano X')
+        plt.ylabel('Nano Y')
+        plt.grid(True)
+        plt.savefig(f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}_nanoXY.png", dpi=200)
+        plt.close()
 
     print("Event processing complete. Merging figures......")
     fig, axes = plt.subplots(2, 5, figsize=(15, 6))  # 2 rows × 5 columns
@@ -122,6 +139,23 @@ for i in range(end_entry - start_entry):
 
     plt.tight_layout()
     plt.savefig(f"event_{event_number}_all_layers.png", dpi=200)
+    plt.close()
+
+    # Merge Nano x-y plots
+    fig, axes = plt.subplots(2, 5, figsize=(15, 6))  # 2 rows × 5 columns
+    axes = axes.flatten()
+    for layer in range(1, 11):
+        img_path = (
+            f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}_nanoXY.png"
+        )
+        img = mpimg.imread(img_path)
+        axes[layer - 1].imshow(img)
+        axes[layer - 1].set_title(f"Layer {layer} Nano XY")
+        axes[layer - 1].axis("off")
+    
+    plt.tight_layout()
+    plt.savefig(f"event_{event_number}_all_layers_nanoXY.png", dpi=200)
+    plt.close()
 
     if args.clean:
         # for layer in range(1, 11):
