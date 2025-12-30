@@ -40,7 +40,7 @@ with uproot.open(args.filename) as file:
             "HGCDigi_channel",
             "HGCDenseIndex_digiIdx",
             "HGCHit_denseIndex",
-            "HGCHit_x"
+            "HGCHit_x",
             "HGCHit_y"
         ],
         entry_start=start_entry,
@@ -121,6 +121,8 @@ for i in range(end_entry - start_entry):
         plt.title(f'Event {event_number} Layer {layer} Hit Map')
         plt.xlabel('Nano X')
         plt.ylabel('Nano Y')
+        plt.xlim(84, 96)   # <-- choose your range
+        plt.ylim(60, 76)
         plt.grid(True)
         plt.savefig(f"hitplot_event_{event_number}/Event_{event_number}_layer_{layer}_nanoXY.png", dpi=200)
         plt.close()
